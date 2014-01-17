@@ -5,10 +5,67 @@
     <title>Friendlocator with Facebook</title>
     <link href="css/normalize.css" rel="stylesheet">
     <link href="css/style.css" rel="stylesheet">
+    <script type="text/javascript" src="//connect.facebook.net/en_US/all.js"></script>
     <script type="text/javascript" src="js/jquery-2.0.3.min.js"></script>
     <script type="text/javascript" src="js/main.js"></script>
   </head>
   <body>
+    <div id="fb-root"></div>
+    <script>
+    window.fbAsyncInit = function() {
+      FB.init({
+      appId      : 'YOUR_APP_ID', // App ID
+      channelUrl : 'http://sandraszenti.github.io/channel-test/index.html',
+      status     : true, // check login status
+      cookie     : true, // enable cookies to allow the server to access the session
+      xfbml      : true  // parse XFBML
+    });
+    };
+ 
+
+  function Login()
+      {
+   
+          FB.login(function(response) {
+             if (response.authResponse) 
+             {
+                  getUserInfo(); // Get User Information.
+   
+              } else
+              {
+               console.log('Authorization failed.');
+              }
+           },{scope: 'read_friendlists'});
+   
+      }
+
+
+function getUserInfo() {
+ FB.api('/me', function(response) {
+  console.log("Hello " + response.name);
+  //response.name       - User Full name
+  //response.link       - User Facebook URL
+  //response.username   - User name
+  //response.id         - id
+  //response.email      - User email
+
+  });
+}
+
+function Logout()
+{
+    FB.logout(function(){document.location.reload();});
+ 
+}
+
+(function(d){
+     var js, id = 'facebook-jssdk', ref = d.getElementsByTagName('script')[0];
+     if (d.getElementById(id)) {return;}
+     js = d.createElement('script'); js.id = id; js.async = true;
+     js.src = "//connect.facebook.net/en_US/all.js";
+     ref.parentNode.insertBefore(js, ref);
+   }(document));
+</script>
     <div id="container">
       <h1>Hello Facebook World</h1>
       <p>This is some silly paragraph that talks about the page in general. I will now try and connect you to the fantastic social network of Facebook. Please go on and click on the button below so that I can access your profile and friend list. All the data I pull in is already public, so actually I don't see anything that you already haven't provided access to all the folks on the net.</p>
