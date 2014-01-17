@@ -1,0 +1,40 @@
+@import url(http://fonts.googleapis.com/css?family=Duru+Sans);
+
+body {
+	background-color: #CFF76F;
+	font-family: 'Duru Sans', sans-serif;
+	font-size: 14px;
+}
+
+#container {
+	width: 75%;
+	background-color: #FFFFFF;
+	margin: 0 auto;
+	padding: 0;
+}
+
+h1 {
+	margin: 0;
+	padding: 12px 0 8px 24px;
+	color: #FF5640;
+}
+
+p {
+	padding: 0 24px;
+}
+
+#container div {
+	display: inline-block;
+	background-color: #C7007D;
+	width: 120px;
+	text-align: center;
+	padding: 8px;
+	border-radius: 3px;
+	color: #FFFFFF;
+	margin: 12px 0 12px 24px;
+	box-shadow: 1px 1px 3px #5A5A5A;
+}
+
+#container div:hover {
+	background-color: #00BF32;
+}
