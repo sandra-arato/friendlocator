@@ -7,7 +7,7 @@
 
 
 function initialize() {
-
+	console.log("comment to check git origin master");
 	// $.ajaxSetup({ cache: true });
 
 	// $.getScript('//connect.facebook.net/en_UK/all.js', function(){
