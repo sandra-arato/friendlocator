@@ -7,8 +7,8 @@ function initialize() {
 
 	window.fbAsyncInit = function() {
 		FB.init({
-			appId      : '198937526977949', // App ID
-			channelUrl : 'http://localhost/projects/friendlocator/channel.html',
+			appId      : '745988862080724', // App ID
+			channelUrl : 'http://sandraszenti.github.io/friendlocator/channel.html',
 			status     : true, // check login status
 			cookie     : true, // enable cookies to allow the server to access the session
 			xfbml      : true  // parse XFBML
