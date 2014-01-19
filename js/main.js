@@ -2,6 +2,7 @@
 var syncInit = false;
 var userLocationId;
 var userFBLoc;
+var friends = [];
 
 function initialize() {
 
@@ -26,12 +27,22 @@ function initialize() {
 						FB.api('/me', function(response) {
 							console.log(response);
 							console.log('Good to see you, ' + response.name + '.');
+							var userId = response.id;
 							userLocationId = response.location.id;
+
+							console.log(userId);
+
+							FB.api("/"+userId+"/friends", function(response) {
+								console.log("Searching for friends...");
+								console.log(response);
+								friends = response.data();
+							});
 
 							FB.api("/"+userLocationId, function(response) {
 								userFBLoc=response;
 							});
 
+							
 						});
 						
 					}
