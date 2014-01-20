@@ -3,11 +3,33 @@ var syncInit = false;
 var userLocationId;
 var userFBLoc;
 var friends = [];
-var friendsLocation = [];
+var friendsLocation = "";
+var friendsOnMap = {
+	location: "",
+	users: []
+};
+
+function buildLocations() {
+	for (var i in friends) {
+		if (friends[i].location) {
+			var c = friends[i].location.id;
+			if (friendsLocation.search(c) == -1) {
+				friendsLocation = friendsLocation + c + ",";
+			};
+		};
+	};
+
+	friendsLocation = friendsLocation.slice(0, friendsLocation.length-1);
+
+	FB.api("/?ids="+friendsLocation, function(response) {
+		console.log("friends location loading...");
+		$("#facebook-load").html("Now loading your friends' locations...");
+		console.log(response);
+	});
+}
 
 function mapLoad() {
 	$("#container").append("<div id='map-canvas'></div>");
-	console.log(userFBLoc);
 	var MY_MAPTYPE_ID = 'custom_style';
 
 	var featureOpts = [
@@ -123,16 +145,15 @@ function FBinit() {
 
 							FB.api("/"+userLocationId, function(response) {
 								userFBLoc=response;
-								console.log("userFBloc ", userFBLoc.location.latitude, userFBLoc.location.longitude)
 								mapLoad();
 
 							});
-							
-							FB.api("/"+userId+"/friends?fields=id,name,location", function(response) {
+
+							FB.api("/"+userId+"/friends?fields=id,location,name", function(response) {
 								$("#facebook-load").html("Searching for friends...");
-								console.log(response);
 								friends = response.data;
-								$("#facebook-load").html(friends.length + " friends found on Facebook. Building your map now");
+								$("#facebook-load").html(friends.length + " friends found on Facebook. Building your map now!");
+								buildLocations();
 							});
 
 						});
@@ -142,7 +163,7 @@ function FBinit() {
 					else {
 						$("#facebook-load").html("You cancelled login or did not fully authorize.");
 					};
-				})
+				}, {scope: 'friends_location'})
 			);
 		}	
 	}
