@@ -1,14 +1,13 @@
 
 var syncInit = false;
 var map;
-var userLocationId;
 var userFBLoc;
 var friends = [];
 var friendsLocation = "";
 var friendsOnMap;
 
 function placeFriendsOnMap(friendsOnMap) {
-	var fn = 0; // number of friends
+	var fn = 0; // number of friends available on map
 	for (var loc in friendsOnMap) {
 		var markerHtml = "<div class='friends-map' id='" + loc + "' style='overflow: visibile;'>" + friendsOnMap[loc].name + "<ul>" ;
 		for (i in friendsOnMap[loc].users) {
@@ -23,11 +22,11 @@ function placeFriendsOnMap(friendsOnMap) {
 		});
 
 		infowindow = new google.maps.InfoWindow({
-			content: "placeholder"
+			content: "placeholder",
+			maxWidth: 420
 		});
 
 		google.maps.event.addListener(marker, 'click', function() {
-			console.log("this is ", this);
 			infowindow.setContent(this.html);
 			infowindow.open(map, this);
 		});
@@ -52,7 +51,6 @@ function buildLocations() {
 
 	// fetching the geoloc info of friends from FB api
 	FB.api("/?ids="+friendsLocation, function(response) {
-		console.log("friends location loading...");
 		$("#facebook-load").html("Now loading your friends' locations...");
 		
 		// for each location that was searched for, friends at that location are added as an array of "users"
@@ -69,8 +67,6 @@ function buildLocations() {
 
 		friendsOnMap = response; // the result is an object of locations with ids, geolocs and users at that place (etc)
 		placeFriendsOnMap(friendsOnMap); // use the result to place markers on google maps where friends are
-		console.log("..................");
-		console.log(friendsOnMap);
 	});
 	
 }
@@ -190,7 +186,7 @@ function FBinit() {
 							$("#facebook-load").html("Good to see you, " + response.name + "!")
 							var userId = response.id;
 							if (response.location) {
-								userLocationId = response.location.id;
+								var userLocationId = response.location.id;
 
 								FB.api("/"+userLocationId, function(response) {
 									userFBLoc=response;

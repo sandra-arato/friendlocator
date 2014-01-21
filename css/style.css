@@ -54,3 +54,17 @@ p {
 	width: 100%;
 	height: 380px;
 }
+
+.friends-map {
+	display: block;
+	width: 160px;
+	font-size: 22px;
+		padding: 0;
+}
+
+.friends-map ul {
+	margin: 0;
+	padding: 0;
+	font-size: 14px;
+	list-style: none;
+}
