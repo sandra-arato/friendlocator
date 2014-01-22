@@ -1,27 +1,34 @@
 /* color palette: http://colorschemedesigner.com/#0041YnZw0w0w0 */
 
 @import url(http://fonts.googleapis.com/css?family=Duru+Sans);
+@import url(http://fonts.googleapis.com/css?family=Ubuntu);
 
 body {
-	background-color: #FFCA96;
+	background-color: #FFB770;
 	font-family: 'Duru Sans', sans-serif;
 	font-size: 14px;
 }
 
 #container {
 	width: 75%;
-	background-color: #FFFFFF;
-	margin: 0 auto;
+	margin: 20px auto 24px auto;
 	padding: 0;
+	background-color: #FFFFFF;
+	padding-bottom: 20px;
+	border: 1px solid #FF9F40;
+	border-radius: 4px;
 }
 
 h1 {
 	margin: 12px 0 0 0;
 	padding: 12px 0 8px 24px;
 	color: #FF4040;
+	border-radius: 3px 3px 0 0;
 }
 
 p {
+	font-family: 'Ubuntu', sans-serif;
+	font-size: 16px;
 	padding: 0 24px;
 }
 
@@ -44,7 +51,6 @@ p {
 
 #facebook-load {
 	margin: 0 24px 12px 24px;
-	/*padding-left: 24px;*/
 	padding: 8px;
 	border: 1px solid #118511;
 	border-radius: 3px;
@@ -57,7 +63,7 @@ p {
 
 .friends-map, .gm-style .gm-style-iw div {
 	display: block;
-	width: 160px;
+	width: 340px;
 	font-size: 22px;
 		padding: 0;
 }
@@ -69,7 +75,13 @@ p {
 	list-style: none;
 }
 
+.friends-map ul li, .gm-style .gm-style-iw div ul li {
+	display: inline-block;
+	padding: 3px;
+}
+
 .friends-map ul li img {
+	display: block;
 	width: 50px;
 	height: 50px;
 }

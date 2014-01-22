@@ -8,16 +8,17 @@ var friendsOnMap = {};
 function placeFriendsOnMap(friendsOnMap) {
 	var fn = 0; // number of friends available on map
 	for (var loc in friendsOnMap) {
+		// setting up inner HTML of the infoWindow for each location
 		var markerHtml = "<div class='friends-map' id='" + loc + "' style='overflow: visibile;'>" + friendsOnMap[loc].location.name + "<ul>" ;
 		for (i in friendsOnMap[loc].users) {
 			markerHtml = markerHtml + "<li> <img src='http://graph.facebook.com/" + friendsOnMap[loc].users[i].uid + "/picture'>" + friendsOnMap[loc].users[i].first_name + "</li>"
 			fn++;
-			console.log(friendsOnMap[loc].users[i]);
 		};
 		markerHtml = markerHtml + "</ul></div>"
 		var marker = new google.maps.Marker({
 			map: map,
 			position: new google.maps.LatLng(friendsOnMap[loc].location.latitude,friendsOnMap[loc].location.longitude),
+			icon: "images/marker-32.ico",
 			html: markerHtml
 		});
 
@@ -47,7 +48,6 @@ function buildLocations() {
 				friendsOnMap[c].users = [];
 			}
 			friendsOnMap[c].users.push(friends[i]);
-			// console.log(friendsOnMap[c]);
 		};
 
 	}
@@ -64,49 +64,42 @@ function mapLoad() {
 			"featureType": "water",
 			"stylers": [
 				{"visibility": "on" },
-				{ "color": "#003466" }
+				{ "color": "#5eb9ce"}
 			]
 		},
 		{
 			"featureType": "landscape",
 			"stylers": [
 				{ "visibility": "on" },
-				{ "color": "#ffffff" }
+				{ "color": "#65e665" }
 			]
 		},
 		{
 			"featureType": "transit",
 			"stylers": [
 				{ "visibility": "on" },
-				{ "color": "#ffffff" }
+				{ "color": "#ff9f40" }
 			]
 		},
 		{
 			"featureType": "road",
 			"stylers": [
 				{ "visibility": "on" },
-				{ "color": "#ffffff" }
+				{ "color": "#ff9f40" }
 			]
 		},
 		{
-			"featureType": "administrative.province",
+			"featureType": "road",
+			"elementType": "labels",
 			"stylers": [
-				{ "visibility": "on" },
-				{ "color": "#ffffff" }
-			]
-		},
-		{
-			"featureType": "administrative.land_parcel",
-			"stylers": [
-				{ "visibility": "on" },
-				{ "color": "#ffffff" }
+				{ "visibility": "off" }
 			]
 		},
 		{
 			"featureType": "poi",
 			"stylers": [
 				{ "visibility": "on" },
-				{ "color": "#ffffff" }
+				{ "color": "#65e665" }
 			]
 		}
 	];
@@ -147,56 +140,53 @@ function addFacebookStatusInfo () {
 }
 
 
-function FBinit() {
-	window.fbAsyncInit = function() {
-		FB.init({
-			appId      : '198937526977949', // App ID
-			channelUrl : 'http://localhost/projects/friendlocator/channel.html',
-			status     : true, // check login status
-			cookie     : true, // enable cookies to allow the server to access the session
-			xfbml      : true  // parse XFBML
-		});
+window.fbAsyncInit = function() {
+	FB.init({
+		appId      : '198937526977949', // App ID
+		channelUrl : 'http://localhost/projects/friendlocator/channel.html',
+		status     : true, // check login status
+		cookie     : true, // enable cookies to allow the server to access the session
+		xfbml      : true  // parse XFBML
+	});
 
-		syncInit = true;
+	syncInit = true;
 
-		if (syncInit) {
-			addFacebookStatusInfo();
-			$("#fb-login-button").click( function() {
-				if ($("a#fb-login-button").html() == "login to facebook") {
-					$("#fb-login-button").html("logout from facebook");
+	if (syncInit) {
+		addFacebookStatusInfo();
+		$("#fb-login-button").click( function() {
+			if ($("a#fb-login-button").html() == "login to facebook") {
+				$("#fb-login-button").html("logout from facebook");
 
-					FB.login(function(response) {
-						if (response.authResponse) {
-							$("#facebook-load").html("Welcome!  Fetching your information.... ");
-							// get user info and location to build map
-							FB.api("/fql", {q: {"query1": "SELECT first_name, last_name, current_location FROM user WHERE uid = me()"}}, 
-								function(response) {
-									userFBLoc = response.data[0].fql_result_set[0].current_location;
-									$("#facebook-load").html("Just a sec, " + response.data[0].fql_result_set[0].first_name + ", setting up your map now.");
-									mapLoad(); //create a google map with the user's location as a center
-							});
-							// get friends info and their current geolocation
-							FB.api("/fql", {q: {"query2": "SELECT uid, first_name, last_name, current_location FROM user WHERE uid IN (SELECT uid2 FROM friend WHERE uid1 = me()) AND current_location"}}, 
-								function(response) {
-									friends = response.data[0].fql_result_set;
-									buildLocations();
-							});
-						}
-						else {
-							$("#facebook-load").html("You cancelled login or did not fully authorize.");
-						};
-					}, {scope: 'user_location,friends_location'})
-				}
-				else {
-					$("#fb-login-button").html("login to facebook");
-					FB.logout(function(response) {
-						$("#facebook-load").html("You're currently logged out.").css("border-color", "#FF4040");
-						$("#map-canvas").css({"visibility": "hidden", "height": "20px"});
-					});
-				}}
-			)
-		}	
-	}
+				FB.login(function(response) {
+					if (response.authResponse) {
+						$("#facebook-load").html("Welcome!  Fetching your information.... ").css("border-color", "#118511");
+						// get user info and location to build map
+						FB.api("/fql", {q: {"query1": "SELECT first_name, last_name, current_location FROM user WHERE uid = me()"}}, 
+							function(response) {
+								userFBLoc = response.data[0].fql_result_set[0].current_location;
+								$("#facebook-load").html("Just a sec, " + response.data[0].fql_result_set[0].first_name + ", setting up your map now.");
+								mapLoad(); //create a google map with the user's location as a center
+						});
+						// get friends info and their current geolocation
+						FB.api("/fql", {q: {"query2": "SELECT uid, first_name, last_name, current_location FROM user WHERE uid IN (SELECT uid2 FROM friend WHERE uid1 = me()) AND current_location"}}, 
+							function(response) {
+								friends = response.data[0].fql_result_set;
+								buildLocations();
+						});
+					}
+					else {
+						$("#facebook-load").html("You cancelled login or did not fully authorize.");
+					};
+				}, {scope: 'user_location,friends_location'})
+			}
+			else {
+				$("#fb-login-button").html("login to facebook");
+				FB.logout(function(response) {
+					$("#facebook-load").html("You're currently logged out.").css("border-color", "#FF4040");
+					$("#map-canvas").css({"visibility": "hidden", "height": "20px"});
+				});
+			}}
+		)
+	}	
 }
 
-$(document).ready(FBinit);
