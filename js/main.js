@@ -3,16 +3,16 @@ var syncInit = false;
 var map;
 var userFBLoc;
 var friends = [];
-var friendsLocation = "";
-var friendsOnMap;
+var friendsOnMap = {};
 
 function placeFriendsOnMap(friendsOnMap) {
 	var fn = 0; // number of friends available on map
 	for (var loc in friendsOnMap) {
-		var markerHtml = "<div class='friends-map' id='" + loc + "' style='overflow: visibile;'>" + friendsOnMap[loc].name + "<ul>" ;
+		var markerHtml = "<div class='friends-map' id='" + loc + "' style='overflow: visibile;'>" + friendsOnMap[loc].location.name + "<ul>" ;
 		for (i in friendsOnMap[loc].users) {
-			markerHtml = markerHtml + "<li> <img src='http://graph.facebook.com/" + friendsOnMap[loc].users[i].id + "/picture'>" + friendsOnMap[loc].users[i].name + "</li>"
+			markerHtml = markerHtml + "<li> <img src='http://graph.facebook.com/" + friendsOnMap[loc].users[i].uid + "/picture'>" + friendsOnMap[loc].users[i].first_name + "</li>"
 			fn++;
+			console.log(friendsOnMap[loc].users[i]);
 		};
 		markerHtml = markerHtml + "</ul></div>"
 		var marker = new google.maps.Marker({
@@ -37,38 +37,22 @@ $("#facebook-load").html(fn + " of your friends are on the map. Have fun explori
 
 function buildLocations() {
 
-	// going through friends array and grabbing each location id and push it to a string
+	// for each location that was searched for, friends at that location are added as an array of "users"
 	for (var i in friends) {
-		if (friends[i].location) {
-			var c = friends[i].location.id;
-			if (friendsLocation.search(c) == -1) {
-				friendsLocation = friendsLocation + c + ","; // will use this string of loc ids to load geoloc from FB api
-			};
+		if (friends[i].current_location.id) {
+			var c = friends[i].current_location.id;
+			if (!friendsOnMap[c]) {
+				friendsOnMap[c] = {};
+				friendsOnMap[c].location = friends[i].current_location;
+				friendsOnMap[c].users = [];
+			}
+			friendsOnMap[c].users.push(friends[i]);
+			// console.log(friendsOnMap[c]);
 		};
-	};
 
-	friendsLocation = friendsLocation.slice(0, friendsLocation.length-1);
-
-	// fetching the geoloc info of friends from FB api
-	FB.api("/?ids="+friendsLocation, function(response) {
-		$("#facebook-load").html("Now loading your friends' locations...");
-		
-		// for each location that was searched for, friends at that location are added as an array of "users"
-		for (var i in friends) {
-			if (friends[i].location) {
-				if (response[friends[i].location.id]) {
-					if (!response[friends[i].location.id].users) {
-						response[friends[i].location.id].users = [];
-					}
-					response[friends[i].location.id].users.push(friends[i]);
-				}
-			};
-		}
-
-		friendsOnMap = response; // the result is an object of locations with ids, geolocs and users at that place (etc)
-		placeFriendsOnMap(friendsOnMap); // use the result to place markers on google maps where friends are
-	});
-	
+	}
+	// the result is an object of locations with ids, geolocs and users at that place (etc)
+	placeFriendsOnMap(friendsOnMap); // use the result to place markers on google maps where friends are
 }
 
 function mapLoad() {
@@ -133,7 +117,7 @@ function mapLoad() {
 
 	var mapOptions = {
 		zoom: 5,
-		center: new google.maps.LatLng(userFBLoc.location.latitude,userFBLoc.location.longitude),
+		center: new google.maps.LatLng(userFBLoc.latitude,userFBLoc.longitude),
 		panControl: false,
 		zoomControl: false,
 		mapTypeControl: false,
@@ -159,8 +143,9 @@ function mapLoad() {
 }
 
 function addFacebookStatusInfo () {
-	$("#container").append("<div id='facebook-load'>Thanks for trusting me with your data</div>");
+	$("#container").append("<div id='facebook-load'>Please click on the button above.</div>");
 }
+
 
 function FBinit() {
 	window.fbAsyncInit = function() {
@@ -176,50 +161,42 @@ function FBinit() {
 
 		if (syncInit) {
 			addFacebookStatusInfo();
-			$("#fb-login-button").click(
-				FB.login(function(response) {
-					if (response.authResponse) {
-						$("#facebook-load").html("Welcome!  Fetching your information.... ");
-						// when user grants permission, user info and location is loaded"
-						FB.api('/me', function(response) {
-							console.log(response);
-							$("#facebook-load").html("Good to see you, " + response.name + "!")
-							var userId = response.id;
-							if (response.location) {
-								var userLocationId = response.location.id;
+			$("#fb-login-button").click( function() {
+				if ($("a#fb-login-button").html() == "login to facebook") {
+					$("#fb-login-button").html("logout from facebook");
 
-								FB.api("/"+userLocationId, function(response) {
-									userFBLoc=response;
+					FB.login(function(response) {
+						if (response.authResponse) {
+							$("#facebook-load").html("Welcome!  Fetching your information.... ");
+							// get user info and location to build map
+							FB.api("/fql", {q: {"query1": "SELECT first_name, last_name, current_location FROM user WHERE uid = me()"}}, 
+								function(response) {
+									userFBLoc = response.data[0].fql_result_set[0].current_location;
+									$("#facebook-load").html("Just a sec, " + response.data[0].fql_result_set[0].first_name + ", setting up your map now.");
 									mapLoad(); //create a google map with the user's location as a center
-								});
-								// user's friends and their locations load from FB api
-								FB.api("/"+userId+"/friends?fields=id,location,name", function(response) {
-									$("#facebook-load").html("Searching for friends...");
-									friends = response.data;
-									$("#facebook-load").html(friends.length + " friends found on Facebook. Building your map now!");
-									buildLocations(); // create location sets based on friends' data
-								});
-							};
-							
-
-						});
-						
-						
-					}
-					else {
-						$("#facebook-load").html("You cancelled login or did not fully authorize.");
-					};
-				}, {scope: 'user_location,friends_location'})
-			);
+							});
+							// get friends info and their current geolocation
+							FB.api("/fql", {q: {"query2": "SELECT uid, first_name, last_name, current_location FROM user WHERE uid IN (SELECT uid2 FROM friend WHERE uid1 = me()) AND current_location"}}, 
+								function(response) {
+									friends = response.data[0].fql_result_set;
+									buildLocations();
+							});
+						}
+						else {
+							$("#facebook-load").html("You cancelled login or did not fully authorize.");
+						};
+					}, {scope: 'user_location,friends_location'})
+				}
+				else {
+					$("#fb-login-button").html("login to facebook");
+					FB.logout(function(response) {
+						$("#facebook-load").html("You're currently logged out.").css("border-color", "#FF4040");
+						$("#map-canvas").css({"visibility": "hidden", "height": "20px"});
+					});
+				}}
+			)
 		}	
 	}
 }
 
-function initialize() {
-	FBinit();
-
-
-}
-
-
-$(document).ready(initialize);
+$(document).ready(FBinit);
