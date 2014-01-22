@@ -18,7 +18,7 @@ body {
 h1 {
 	margin: 12px 0 0 0;
 	padding: 12px 0 8px 24px;
-	color: #A61515;
+	color: #FF4040;
 }
 
 p {
@@ -55,16 +55,21 @@ p {
 	height: 380px;
 }
 
-.friends-map {
+.friends-map, .gm-style .gm-style-iw div {
 	display: block;
 	width: 160px;
 	font-size: 22px;
 		padding: 0;
 }
 
-.friends-map ul {
+.friends-map ul, .gm-style .gm-style-iw div ul {
 	margin: 0;
 	padding: 0;
 	font-size: 14px;
 	list-style: none;
+}
+
+.friends-map ul li img {
+	width: 50px;
+	height: 50px;
 }
