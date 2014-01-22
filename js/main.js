@@ -158,8 +158,10 @@ window.fbAsyncInit = function() {
 				$("#fb-login-button").html("logout from facebook");
 
 				FB.login(function(response) {
+					friends = []; // clear cache when log out and re-login happens
 					if (response.authResponse) {
 						$("#facebook-load").html("Welcome!  Fetching your information.... ").css("border-color", "#118511");
+						$("#map-canvas").css({"visibility": "visibile", "height": "380px"});
 						// get user info and location to build map
 						FB.api("/fql", {q: {"query1": "SELECT first_name, last_name, current_location FROM user WHERE uid = me()"}}, 
 							function(response) {
