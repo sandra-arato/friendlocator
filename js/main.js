@@ -53,6 +53,7 @@ function buildLocations() {
 	}
 	// the result is an object of locations with ids, geolocs and users at that place (etc)
 	placeFriendsOnMap(friendsOnMap); // use the result to place markers on google maps where friends are
+	friendsOnMap = {};
 }
 
 function mapLoad() {
@@ -155,13 +156,12 @@ window.fbAsyncInit = function() {
 		addFacebookStatusInfo();
 		$("#fb-login-button").click( function() {
 			if ($("a#fb-login-button").html() == "login to facebook") {
-				$("#fb-login-button").html("logout from facebook");
-
 				FB.login(function(response) {
 					friends = []; // clear cache when log out and re-login happens
+					$("#fb-login-button").html("logout from facebook");
+
 					if (response.authResponse) {
 						$("#facebook-load").html("Welcome!  Fetching your information.... ").css("border-color", "#118511");
-						$("#map-canvas").css({"visibility": "visibile", "height": "380px"});
 						// get user info and location to build map
 						FB.api("/fql", {q: {"query1": "SELECT first_name, last_name, current_location FROM user WHERE uid = me()"}}, 
 							function(response) {
@@ -185,7 +185,8 @@ window.fbAsyncInit = function() {
 				$("#fb-login-button").html("login to facebook");
 				FB.logout(function(response) {
 					$("#facebook-load").html("You're currently logged out.").css("border-color", "#FF4040");
-					$("#map-canvas").css({"visibility": "hidden", "height": "20px"});
+					$("#map-canvas").remove();
+					map = {};
 				});
 			}}
 		)
