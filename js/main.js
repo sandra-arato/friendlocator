@@ -137,6 +137,7 @@ function mapLoad() {
 }
 
 function addFacebookStatusInfo () {
+	$("#fb-login-button").css("display", "inline-block");
 	$("#container").append("<div id='facebook-load'>Please click on the button above.</div>");
 }
 

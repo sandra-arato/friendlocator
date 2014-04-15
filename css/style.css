@@ -33,7 +33,7 @@ p {
 }
 
 #fb-login-button {
-	display: inline-block;
+	display: none;
 	background-color: #2B889E;
 	width: 230px;
 	text-align: center;
